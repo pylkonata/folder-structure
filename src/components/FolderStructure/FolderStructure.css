@@ -1,0 +1,23 @@
+.btn-container {
+  display: flex;
+  gap: 10px;
+  padding: 5px 10px;
+  justify-content: center;
+}
+.btn {
+  display: flex;
+  gap: 10px;
+  padding: 5px 10px;
+  justify-content: center;
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-left: 20px;
+}
+.name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
