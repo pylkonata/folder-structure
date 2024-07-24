@@ -1,30 +1,30 @@
-# React + TypeScript + Vite
+# Folder Structure
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## To start project:
 
-Currently, two official plugins are available:
+npm run dev
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Task description:
 
-## Expanding the ESLint configuration
+The project starts with initial options for a long path.
+[
+"/dir/subdir/../file.txt, /dir/file.txt",
+"/dir/subdir/../../file.txt, /file.txt",
+"/dir/subdir/../../../file.txt, /file.txt",
+"/dir/subdir/.././.././../file.txt, /file.txt",
+"/dir/subdir/a/b/c/d/../../../../file.txt, /dir/subdir/file.txt",
+"/dir//file.txt, /dir/file.txt",
+"/dir///file.txt, /dir/file.txt",
+"/dir////file.txt, /dir/file.txt",
+"/dir/, /dir",
+"/dir/.., /",
+"/, /",
+"///////////, /",
+"/dir/./././././file.txt, /dir/file.txt",
+"/dir/subdir/../../../subdir/../file.txt, /file.txt",
+"/dir/subdir/../../../sub_dir/subsubdir/../file.txt, /sub_dir/file.txt",
+];
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+The first part of the line is converted into a short path
+and the folder structure is built on its basis.
+The folder structure can be changed by adding or removing folders or deleting a file.
