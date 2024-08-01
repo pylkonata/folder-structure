@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./App.css";
-import FolderStructure from "./components/FolderStructure/FolderStructure";
+import { FolderStructure } from "./components/FolderStructure";
 import { pathOptions } from "./constants";
 
 function App() {

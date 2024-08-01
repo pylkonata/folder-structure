@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./FolderStructure.css";
-import {
-  addItem,
-  checkIsFile,
-  deleteItem,
-  processPathSructure,
-} from "../../utility";
+import { checkIsFile } from "../../utility";
+import FolderList from "../FolderList/FolderList";
+import FolderTreeService from "../../services/FolderTreeService";
+import ModalForm from "../ModalForm/ModalForm";
 
 interface FolderStructureProps {
   selectedPath: string;
@@ -18,82 +16,96 @@ export type StructureNode = {
 };
 
 const FolderStructure = ({ selectedPath }: FolderStructureProps) => {
-  const [structure, setStructure] = useState<StructureNode | null>(
-    processPathSructure(selectedPath)
+  const treeService = useMemo(() => new FolderTreeService(), []);
+  const [structure, setStructure] = useState<StructureNode | null>(() =>
+    treeService.processPathSructure(selectedPath)
   );
+  const [name, setName] = useState("");
+  const [path, setPath] = useState([]);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    const newStructure = processPathSructure(selectedPath);
-    setStructure(() => newStructure);
+    setStructure(() => treeService.processPathSructure(selectedPath));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPath]);
 
-  const onAddItem = (path: string[]) => {
-    const itemName = prompt("Enter folder or file name:");
+  const onPathChange = (path: string[]) => {
+    setPath(() => path);
+  };
 
-    if (itemName && itemName.trim() && !checkIsFile(itemName)) {
-      addItem(structure, setStructure, path, {
-        type: "folder",
-        name: itemName,
-        children: [],
-      });
-    } else if (itemName && itemName.trim() && checkIsFile(itemName)) {
-      addItem(structure, setStructure, path, {
-        type: "file",
-        name: itemName,
-        children: null,
-      });
-    } else {
-      alert("Invalid input");
-    }
+  const closeDialog = () => {
+    setName("");
+    dialogRef?.current?.close();
+  };
+
+  const openDialog = () => {
+    dialogRef?.current?.showModal();
+  };
+
+  const onClickAddBtn = (path: string[]) => {
+    onPathChange(path);
+    openDialog();
   };
 
   const onDeleteItem = (path: string[]) => {
-    deleteItem(structure, setStructure, path);
+    treeService.deleteItem(path);
+    setStructure(() => treeService.getStructure());
   };
 
-  const actionBtns = (path: string[], node: StructureNode) => {
-    return node.type === "folder" ? (
-      <div className="btn-container">
-        <button className="btn" onClick={() => onAddItem([...path, node.name])}>
-          +
-        </button>
-        <button
-          className="btn"
-          onClick={() => onDeleteItem([...path, node.name])}
-        >
-          -
-        </button>
-      </div>
-    ) : (
-      <button
-        className="btn"
-        onClick={() => onDeleteItem([...path, node.name])}
-      >
-        -
-      </button>
-    );
+  const addItem = (path: string[]) => {
+    if (!checkIsFile(name)) {
+      treeService.addItem(path, {
+        type: "folder",
+        name: name,
+        children: [],
+      });
+
+      setStructure(() => treeService.getStructure());
+    }
+
+    if (checkIsFile(name)) {
+      treeService.addItem(path, {
+        type: "file",
+        name: name,
+        children: null,
+      });
+      setStructure(() => treeService.getStructure());
+    }
   };
 
-  const renderStructure = (node: StructureNode, path = []) => {
-    return (
-      <div className="content">
-        <div className="name-wrapper">
-          {node?.name}
-          {actionBtns(path, node)}
-        </div>
-        {node?.children &&
-          node?.children.map((child, index) => {
-            return (
-              <div key={index}>
-                {renderStructure(child, [...path, node.name])}
-              </div>
-            );
-          })}
-      </div>
-    );
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+  };
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (name && name.trim()) {
+      addItem(path);
+      closeDialog();
+      setName("");
+    }
   };
 
-  return <>{structure ? renderStructure(structure) : "No folders or files"}</>;
+  return (
+    <>
+      {structure ? (
+        <FolderList
+          node={structure}
+          onAddItem={onClickAddBtn}
+          onDeleteItem={onDeleteItem}
+        />
+      ) : (
+        <p>No folders or files</p>
+      )}
+
+      <ModalForm
+        ref={dialogRef}
+        handleFormSubmit={handleFormSubmit}
+        closeDialog={closeDialog}
+        name={name}
+        handleNameChange={handleNameChange}
+      />
+    </>
+  );
 };
 
 export default FolderStructure;
