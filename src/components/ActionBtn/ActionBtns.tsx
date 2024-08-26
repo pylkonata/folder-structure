@@ -1,25 +1,25 @@
 import { useRef } from "react";
-import FolderTreeService from "../../services/FolderTreeService";
-import { StructureNode } from "../FolderStructure/FolderStructure";
+
 import ModalForm from "../ModalForm/ModalForm";
 import "./ActionBtn.css";
+import { StructureNode } from "../../services/FolderTreeService";
 
 interface ActionBtnsProps {
   pathBase?: string[];
   node: StructureNode;
-  service: FolderTreeService;
-  setStructure: (value: StructureNode) => void;
+  addNewItem: (path: string[], value: StructureNode) => void;
+  deleteItem: (value: string[]) => void;
 }
 
 const ActionBtns = ({
   pathBase,
   node,
-  service,
-  setStructure,
+  deleteItem,
+  addNewItem,
 }: ActionBtnsProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  const addNewItem = () => {
+  const openModal = () => {
     dialogRef?.current?.showModal();
   };
 
@@ -27,14 +27,12 @@ const ActionBtns = ({
     <>
       {node.type === "folder" ? (
         <div className="btn-container">
-          <button className="btn" onClick={() => addNewItem()}>
+          <button className="btn" onClick={openModal}>
             +
           </button>
           <button
             className="btn"
-            onClick={() =>
-              service.deleteItem([...pathBase, node.name], setStructure)
-            }
+            onClick={() => deleteItem([...pathBase, node.name])}
           >
             -
           </button>
@@ -42,18 +40,15 @@ const ActionBtns = ({
       ) : (
         <button
           className="btn"
-          onClick={() =>
-            service.deleteItem([...pathBase, node.name], setStructure)
-          }
+          onClick={() => deleteItem([...pathBase, node.name])}
         >
           -
         </button>
       )}
       <ModalForm
-        serviceInstance={service}
         path={[...pathBase, node.name]}
         ref={dialogRef}
-        setStructure={setStructure}
+        addNewItem={addNewItem}
       />
     </>
   );

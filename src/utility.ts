@@ -1,4 +1,4 @@
-import { StructureNode } from "./components/FolderStructure/FolderStructure";
+import { StructureNode } from "./services/FolderTreeService";
 
 export const normalizePath = (filePath: string) => {
   const parts = filePath.split("/");

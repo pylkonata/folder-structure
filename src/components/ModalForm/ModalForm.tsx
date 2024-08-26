@@ -1,19 +1,17 @@
 import "./ModalForm.css";
 import React, { forwardRef, RefObject, useState } from "react";
 import Dialog from "../Dialog/Dialog";
-import FolderTreeService from "../../services/FolderTreeService";
 import { createItemObj } from "../../utility";
-import { StructureNode } from "../FolderStructure/FolderStructure";
+import { StructureNode } from "../../services/FolderTreeService";
 
 interface ModalProps {
-  serviceInstance: FolderTreeService;
   path: string[] | [];
-  setStructure: (value: StructureNode) => void;
+  addNewItem: (path: string[], value: StructureNode) => void;
 }
 
 const ModalForm = forwardRef(
   (
-    { serviceInstance, path, setStructure }: ModalProps,
+    { path, addNewItem }: ModalProps,
     ref: RefObject<HTMLDialogElement | null>
   ) => {
     const [name, setName] = useState("");
@@ -30,8 +28,7 @@ const ModalForm = forwardRef(
     const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       if (name && name.trim()) {
-        console.log(path, createItemObj(name));
-        serviceInstance.addItem(path, createItemObj(name), setStructure);
+        addNewItem(path, createItemObj(name));
         closeDialog();
       }
     };

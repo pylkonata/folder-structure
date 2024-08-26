@@ -1,25 +1,27 @@
-import { StructureNode } from "../components/FolderStructure/FolderStructure";
 import { checkIsFile, normalizePath } from "../utility";
 
+export type StructureNode = {
+  type: string;
+  name: string;
+  children: StructureNode[] | null;
+};
+
 class FolderTreeService {
-  private _structure: StructureNode | null;
+  _structure: StructureNode | null;
+
   constructor(value: string) {
-    this.addItem = this.addItem.bind(this);
-    this.deleteItem = this.deleteItem.bind(this);
-    this.processPathSructure = this.processPathSructure.bind(this);
-    this.getStructure = this.getStructure.bind(this);
-    this.setStructure = this.setStructure.bind(this);
-    this._structure = this.processPathSructure(value);
+    this.setStructure(value);
   }
+
   getStructure(): StructureNode | null {
     return this._structure;
   }
 
-  setStructure(structure: StructureNode | null) {
-    this._structure = structure;
+  setStructure(path: string) {
+    return this.processPathSructure(path);
   }
 
-  public processPathSructure(path: string): StructureNode | null {
+  public processPathSructure(path: string): void {
     const pathArr = normalizePath(path);
 
     if (pathArr.length && !checkIsFile(pathArr[0])) {
@@ -42,6 +44,7 @@ class FolderTreeService {
           current = newNode;
         }
       }
+      this._structure = current;
     } else if (pathArr.length && checkIsFile(pathArr[0])) {
       this._structure = {
         type: "file",
@@ -51,15 +54,9 @@ class FolderTreeService {
     } else {
       this._structure = null;
     }
-
-    return this._structure;
   }
 
-  public addItem(
-    path: string[],
-    newItem: StructureNode,
-    setFunction: (value: StructureNode) => void
-  ): void {
+  public addItem(path: string[], newItem: StructureNode): void {
     const newStructure = { ...this._structure };
     let current = newStructure;
     if (path.length > 1) {
@@ -69,14 +66,9 @@ class FolderTreeService {
     }
     current.children.push(newItem);
     this._structure = newStructure;
-
-    setFunction(this._structure);
   }
 
-  public deleteItem(
-    path: string[],
-    setFunction: (value: StructureNode) => void
-  ): void {
+  public deleteItem(path: string[]): void {
     let newStructure = { ...this._structure };
     let current = newStructure;
     let currentIndex: number;
@@ -96,7 +88,6 @@ class FolderTreeService {
       current.children.splice(currentIndex, 1);
     }
     this._structure = newStructure;
-    setFunction(this._structure);
   }
 }
 export default FolderTreeService;
