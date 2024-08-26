@@ -1,46 +1,55 @@
+import FolderTreeService from "../../services/FolderTreeService";
 import ActionBtns from "../ActionBtn/ActionBtns";
 import { StructureNode } from "../FolderStructure/FolderStructure";
 
 interface FolderListProps {
-  node: StructureNode;
-  path?: string[];
-  onAddItem: (path: string[]) => void;
-  onDeleteItem: (path: string[]) => void;
+  service: FolderTreeService;
+  structure: StructureNode;
+  pathBase?: string[];
+  setStructure: (value: StructureNode) => void;
 }
 
 const FolderList = ({
-  node,
-  path = [],
-  onAddItem,
-  onDeleteItem,
+  service,
+  structure,
+  pathBase = [],
+  setStructure,
 }: FolderListProps) => {
   return (
-    <div className="content">
-      <div className="name-wrapper">
-        {node?.name}
-        {node && (
-          <ActionBtns
-            path={path}
-            node={node}
-            onAddItem={onAddItem}
-            onDeleteItem={onDeleteItem}
-          />
-        )}
-      </div>
-      {node?.children &&
-        node?.children.map((child, index) => {
-          return (
-            <div key={index}>
-              <FolderList
-                node={child}
-                path={[...path, node.name]}
-                onAddItem={onAddItem}
-                onDeleteItem={onDeleteItem}
-              />
+    <>
+      {structure ? (
+        <>
+          <div className="content">
+            <div className="name-wrapper">
+              {structure?.name}
+              {structure && (
+                <ActionBtns
+                  pathBase={pathBase}
+                  node={structure}
+                  service={service}
+                  setStructure={setStructure}
+                />
+              )}
             </div>
-          );
-        })}
-    </div>
+            {structure?.children &&
+              structure?.children.map((child, index) => {
+                return (
+                  <div key={index}>
+                    <FolderList
+                      service={service}
+                      structure={child}
+                      pathBase={[...pathBase, structure.name]}
+                      setStructure={setStructure}
+                    />
+                  </div>
+                );
+              })}
+          </div>
+        </>
+      ) : (
+        <p>No folders or files</p>
+      )}
+    </>
   );
 };
 

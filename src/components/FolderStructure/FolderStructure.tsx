@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
 import "./FolderStructure.css";
-import { checkIsFile } from "../../utility";
 import FolderList from "../FolderList/FolderList";
 import FolderTreeService from "../../services/FolderTreeService";
-import ModalForm from "../ModalForm/ModalForm";
+import { useEffect, useMemo, useState } from "react";
 
 interface FolderStructureProps {
   selectedPath: string;
@@ -16,95 +14,23 @@ export type StructureNode = {
 };
 
 const FolderStructure = ({ selectedPath }: FolderStructureProps) => {
-  const treeService = useMemo(() => new FolderTreeService(), []);
-  const [structure, setStructure] = useState<StructureNode | null>(() =>
-    treeService.processPathSructure(selectedPath)
+  const treeService = useMemo(
+    () => new FolderTreeService(selectedPath),
+    [selectedPath]
   );
-  const [name, setName] = useState("");
-  const [path, setPath] = useState([]);
-  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const [structure, setStructure] = useState(treeService.getStructure());
 
   useEffect(() => {
-    setStructure(() => treeService.processPathSructure(selectedPath));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedPath]);
-
-  const onPathChange = (path: string[]) => {
-    setPath(() => path);
-  };
-
-  const closeDialog = () => {
-    setName("");
-    dialogRef?.current?.close();
-  };
-
-  const openDialog = () => {
-    dialogRef?.current?.showModal();
-  };
-
-  const onClickAddBtn = (path: string[]) => {
-    onPathChange(path);
-    openDialog();
-  };
-
-  const onDeleteItem = (path: string[]) => {
-    treeService.deleteItem(path);
-    setStructure(() => treeService.getStructure());
-  };
-
-  const addItem = (path: string[]) => {
-    if (!checkIsFile(name)) {
-      treeService.addItem(path, {
-        type: "folder",
-        name: name,
-        children: [],
-      });
-
-      setStructure(() => treeService.getStructure());
-    }
-
-    if (checkIsFile(name)) {
-      treeService.addItem(path, {
-        type: "file",
-        name: name,
-        children: null,
-      });
-      setStructure(() => treeService.getStructure());
-    }
-  };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value);
-  };
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (name && name.trim()) {
-      addItem(path);
-      closeDialog();
-      setName("");
-    }
-  };
+    setStructure(treeService.getStructure());
+  }, [selectedPath, treeService]);
 
   return (
-    <>
-      {structure ? (
-        <FolderList
-          node={structure}
-          onAddItem={onClickAddBtn}
-          onDeleteItem={onDeleteItem}
-        />
-      ) : (
-        <p>No folders or files</p>
-      )}
-
-      <ModalForm
-        ref={dialogRef}
-        handleFormSubmit={handleFormSubmit}
-        closeDialog={closeDialog}
-        name={name}
-        handleNameChange={handleNameChange}
-      />
-    </>
+    <FolderList
+      service={treeService}
+      structure={structure}
+      setStructure={setStructure}
+    />
   );
 };
 

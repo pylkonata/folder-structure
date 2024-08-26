@@ -1,35 +1,61 @@
+import { useRef } from "react";
+import FolderTreeService from "../../services/FolderTreeService";
 import { StructureNode } from "../FolderStructure/FolderStructure";
+import ModalForm from "../ModalForm/ModalForm";
 import "./ActionBtn.css";
 
 interface ActionBtnsProps {
-  path: string[];
+  pathBase?: string[];
   node: StructureNode;
-  onAddItem: (path: string[]) => void;
-  onDeleteItem: (path: string[]) => void;
+  service: FolderTreeService;
+  setStructure: (value: StructureNode) => void;
 }
 
 const ActionBtns = ({
-  path,
+  pathBase,
   node,
-  onAddItem,
-  onDeleteItem,
+  service,
+  setStructure,
 }: ActionBtnsProps) => {
-  return node.type === "folder" ? (
-    <div className="btn-container">
-      <button className="btn" onClick={() => onAddItem([...path, node.name])}>
-        +
-      </button>
-      <button
-        className="btn"
-        onClick={() => onDeleteItem([...path, node.name])}
-      >
-        -
-      </button>
-    </div>
-  ) : (
-    <button className="btn" onClick={() => onDeleteItem([...path, node.name])}>
-      -
-    </button>
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const addNewItem = () => {
+    dialogRef?.current?.showModal();
+  };
+
+  return (
+    <>
+      {node.type === "folder" ? (
+        <div className="btn-container">
+          <button className="btn" onClick={() => addNewItem()}>
+            +
+          </button>
+          <button
+            className="btn"
+            onClick={() =>
+              service.deleteItem([...pathBase, node.name], setStructure)
+            }
+          >
+            -
+          </button>
+        </div>
+      ) : (
+        <button
+          className="btn"
+          onClick={() =>
+            service.deleteItem([...pathBase, node.name], setStructure)
+          }
+        >
+          -
+        </button>
+      )}
+      <ModalForm
+        serviceInstance={service}
+        path={[...pathBase, node.name]}
+        ref={dialogRef}
+        setStructure={setStructure}
+      />
+    </>
   );
 };
 
