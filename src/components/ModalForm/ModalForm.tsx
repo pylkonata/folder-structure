@@ -1,19 +1,38 @@
 import "./ModalForm.css";
-import React, { forwardRef, RefObject } from "react";
+import React, { forwardRef, RefObject, useState } from "react";
 import Dialog from "../Dialog/Dialog";
+import { createItemObj } from "../../utility";
+import { StructureNode } from "../../services/FolderTreeService";
 
 interface ModalProps {
-  handleFormSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  closeDialog: () => void;
-  name: string;
-  handleNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  path: string[] | [];
+  addNewItem: (path: string[], value: StructureNode) => void;
 }
 
 const ModalForm = forwardRef(
   (
-    { handleFormSubmit, closeDialog, name, handleNameChange }: ModalProps,
+    { path, addNewItem }: ModalProps,
     ref: RefObject<HTMLDialogElement | null>
   ) => {
+    const [name, setName] = useState("");
+
+    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setName(e.target.value);
+    };
+
+    const closeDialog = () => {
+      setName("");
+      ref.current?.close();
+    };
+
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (name && name.trim()) {
+        addNewItem(path, createItemObj(name));
+        closeDialog();
+      }
+    };
+
     return (
       <Dialog ref={ref}>
         <form onSubmit={handleFormSubmit} className="form">

@@ -1,3 +1,5 @@
+import { StructureNode } from "./services/FolderTreeService";
+
 export const normalizePath = (filePath: string) => {
   const parts = filePath.split("/");
   const stack = [];
@@ -14,9 +16,28 @@ export const normalizePath = (filePath: string) => {
       stack.push(part);
     }
   }
-  return "/" + stack.join("/");
+
+  return stack;
 };
 
 export const checkIsFile = (part: string) => {
   return part.includes(".") ? true : false;
+};
+
+export const createItemObj = (name: string): StructureNode => {
+  if (checkIsFile(name)) {
+    return {
+      type: "file",
+      name: name,
+      children: null,
+    };
+  }
+
+  if (!checkIsFile(name)) {
+    return {
+      type: "folder",
+      name: name,
+      children: [] as StructureNode[],
+    };
+  }
 };

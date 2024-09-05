@@ -1,12 +1,33 @@
 import { useState } from "react";
 import "./App.css";
-import { FolderStructure } from "./components/FolderStructure";
+import { FolderTree } from "./components/FolderTree";
 import { pathOptions } from "./constants";
+import FolderTreeService, { StructureNode } from "./services/FolderTreeService";
 
 function App() {
   const [selectedPath, setSelectedPath] = useState(
     pathOptions[0].split(", ")[0]
   );
+  const [treeService] = useState(new FolderTreeService(selectedPath));
+  const [tree, setTree] = useState(treeService.getStructure());
+
+  const onChangePath = (path: string) => {
+    const newSelectedPath = path.split(", ")[0];
+
+    setSelectedPath(newSelectedPath);
+    treeService.setStructure(newSelectedPath);
+    setTree(treeService.getStructure());
+  };
+
+  const addNewItem = (path: string[], item: StructureNode) => {
+    treeService.addItem(path, item);
+    setTree(treeService.getStructure());
+  };
+
+  const removeItem = (path: string[]) => {
+    treeService.deleteItem(path);
+    setTree(treeService.getStructure());
+  };
 
   return (
     <div className="App">
@@ -19,13 +40,17 @@ function App() {
                 type="radio"
                 name="path"
                 checked={selectedPath === path.split(", ")[0]}
-                onChange={() => setSelectedPath(path.split(", ")[0])}
+                onChange={() => onChangePath(path)}
               />
               {path}
             </label>
           ))}
         </div>
-        <FolderStructure selectedPath={selectedPath} />
+        <FolderTree
+          tree={tree}
+          addNewItem={addNewItem}
+          deleteItem={removeItem}
+        />
       </main>
     </div>
   );

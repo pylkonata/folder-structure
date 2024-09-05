@@ -1,40 +1,41 @@
-import { StructureNode } from "../components/FolderStructure/FolderStructure";
 import { checkIsFile, normalizePath } from "../utility";
 
+export type StructureNode = {
+  type: string;
+  name: string;
+  children: StructureNode[] | null;
+};
+
 class FolderTreeService {
-  private _structure: StructureNode | null;
-  constructor() {
-    this.addItem = this.addItem.bind(this);
-    this.deleteItem = this.deleteItem.bind(this);
-    this.processPathSructure = this.processPathSructure.bind(this);
-    this.getStructure = this.getStructure.bind(this);
-    this.setStructure = this.setStructure.bind(this);
-    this._structure = null;
+  _structure: StructureNode | null;
+
+  constructor(value: string) {
+    this.setStructure(value);
   }
+
   getStructure(): StructureNode | null {
     return this._structure;
   }
 
-  setStructure(structure: StructureNode | null) {
-    this._structure = structure;
+  setStructure(path: string) {
+    return this.processPathSructure(path);
   }
 
-  public processPathSructure(path: string): StructureNode | null {
-    const normalizedPaths = normalizePath(path);
-    const parts = normalizedPaths.split("/").filter((part) => part !== "");
+  public processPathSructure(path: string): void {
+    const pathArr = normalizePath(path);
 
-    if (parts.length && !checkIsFile(parts[0])) {
+    if (pathArr.length && !checkIsFile(pathArr[0])) {
       this._structure = {
         type: "folder",
-        name: parts[0],
+        name: pathArr[0],
         children: [],
       };
       let current = this._structure;
-      for (let i = 1; i < parts.length; i++) {
-        const isFile = checkIsFile(parts[i]);
+      for (let i = 1; i < pathArr.length; i++) {
+        const isFile = checkIsFile(pathArr[i]);
         const newNode = {
           type: isFile ? "file" : "folder",
-          name: parts[i],
+          name: pathArr[i],
           children: isFile ? null : ([] as StructureNode[]),
         };
 
@@ -43,16 +44,16 @@ class FolderTreeService {
           current = newNode;
         }
       }
-    } else if (parts.length && checkIsFile(parts[0])) {
+      this._structure = current;
+    } else if (pathArr.length && checkIsFile(pathArr[0])) {
       this._structure = {
         type: "file",
-        name: parts[0],
+        name: pathArr[0],
         children: null,
       };
     } else {
       this._structure = null;
     }
-    return this._structure;
   }
 
   public addItem(path: string[], newItem: StructureNode): void {
@@ -69,7 +70,6 @@ class FolderTreeService {
 
   public deleteItem(path: string[]): void {
     let newStructure = { ...this._structure };
-
     let current = newStructure;
     let currentIndex: number;
 
