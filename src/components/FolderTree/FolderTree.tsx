@@ -1,6 +1,8 @@
 import "./FolderTree.css";
 import ActionBtns from "../ActionBtn/ActionBtns";
 import { StructureNode } from "../../services/FolderTreeService";
+import ModalForm from "../ModalForm/ModalForm";
+import { useRef } from "react";
 
 interface FolderTreeProps {
   pathBase?: string[];
@@ -15,6 +17,12 @@ const FolderTree = ({
   addNewItem,
   deleteItem,
 }: FolderTreeProps) => {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+
+  const onAddBtnClick = () => {
+    dialogRef?.current?.showModal();
+  };
+
   return (
     <>
       {tree ? (
@@ -26,7 +34,7 @@ const FolderTree = ({
                 <ActionBtns
                   pathBase={pathBase}
                   node={tree}
-                  addNewItem={addNewItem}
+                  onAddBtnClick={onAddBtnClick}
                   deleteItem={deleteItem}
                 />
               )}
@@ -45,6 +53,11 @@ const FolderTree = ({
                 );
               })}
           </div>
+          <ModalForm
+            path={[...pathBase, tree?.name]}
+            ref={dialogRef}
+            addNewItem={addNewItem}
+          />
         </>
       ) : (
         <p>No folders or files</p>

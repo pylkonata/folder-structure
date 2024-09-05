@@ -1,33 +1,24 @@
-import { useRef } from "react";
-
-import ModalForm from "../ModalForm/ModalForm";
 import "./ActionBtn.css";
 import { StructureNode } from "../../services/FolderTreeService";
 
 interface ActionBtnsProps {
   pathBase?: string[];
   node: StructureNode;
-  addNewItem: (path: string[], value: StructureNode) => void;
   deleteItem: (value: string[]) => void;
+  onAddBtnClick: () => void;
 }
 
 const ActionBtns = ({
   pathBase,
   node,
   deleteItem,
-  addNewItem,
+  onAddBtnClick,
 }: ActionBtnsProps) => {
-  const dialogRef = useRef<HTMLDialogElement>(null);
-
-  const openModal = () => {
-    dialogRef?.current?.showModal();
-  };
-
   return (
     <>
       {node.type === "folder" ? (
         <div className="btn-container">
-          <button className="btn" onClick={openModal}>
+          <button className="btn" onClick={onAddBtnClick}>
             +
           </button>
           <button
@@ -45,11 +36,6 @@ const ActionBtns = ({
           -
         </button>
       )}
-      <ModalForm
-        path={[...pathBase, node.name]}
-        ref={dialogRef}
-        addNewItem={addNewItem}
-      />
     </>
   );
 };
