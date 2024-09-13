@@ -15,3 +15,5 @@ export const pathOptions = [
   "/dir/subdir/../../../subdir/../file.txt, /file.txt",
   "/dir/subdir/../../../sub_dir/subsubdir/../file.txt, /sub_dir/file.txt",
 ];
+
+export const DEFAULT_PATH = pathOptions[0].split(", ")[0];
